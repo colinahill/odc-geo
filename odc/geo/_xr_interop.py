@@ -318,6 +318,17 @@ def mask(
         value_inside=not invert,
     )
 
+    # Repeat rasterized mask across all non-spatial dims
+    sdims = spatial_dims(xx, relaxed=True)
+    non_sdims = {}
+    non_sdims_axis = []
+    for i, (k, v) in enumerate(xx.sizes.items()):
+        if k not in sdims:
+            non_sdims[k] = v
+            non_sdims_axis.append(i)
+    if non_sdims:
+        rasterized = rasterized.expand_dims(non_sdims, axis=non_sdims_axis)
+
     # Mask data outside rasterized `poly`
     xx_masked = xx.where(rasterized.data)
 
